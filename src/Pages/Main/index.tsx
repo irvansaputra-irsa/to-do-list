@@ -1,19 +1,24 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Button, Checkbox, Flex, Grid, GridItem, Heading, IconButton, Input, Text } from "@chakra-ui/react"
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Button, Checkbox, Grid, GridItem, Heading, IconButton, Input, Text } from "@chakra-ui/react"
 import { DeleteIcon } from "@chakra-ui/icons"
 import { useEffect, useRef, useState } from "react"
 import skyBG from '../../Assets/Image/blue-sky.jpg'
 
+type listType = {
+    desc: string, 
+    isCheck: boolean
+}
+
 export const Main = () => {
-    const [list, setList] = useState([]);
+    const [list, setList] = useState<listType[]> ([]);
     const [alert, setAlert] = useState(false);
     const [count, setCount] = useState(0);
-    const inputted = useRef("");
+    let inputted = useRef<null | HTMLInputElement>(null);
 
-    function addTask(inputted: { current: { value: string } }): void {
-        const descriptions = inputted.current.value
+    function addTask(): void {
+        const descriptions  = inputted.current!.value
 
-        if (descriptions.match(/^(?!\s*$).+/g)) {
-            const temp = [...list, {
+        if (descriptions?.match(/^(?!\s*$).+/g)) {
+            const temp : Array<listType> = [...list, {
                 desc: descriptions,
                 isCheck: false
             }];
@@ -21,12 +26,11 @@ export const Main = () => {
             setAlert(false);
             localStorage.setItem('todolisted', JSON.stringify(temp));
         } else setAlert(true);
-
-        inputted.current.value = "";
+        inputted.current!.value = "";
     }
 
     useEffect(() => {
-        const listed = JSON.parse(localStorage.getItem('todolisted'));
+        const listed : Array<listType> = JSON.parse(localStorage.getItem('todolisted') || '[]');
         if(listed){
             setList(listed);
             let counted =  0;
@@ -37,14 +41,14 @@ export const Main = () => {
         }
     },[])
 
-    const deleteTask = (index) => {
+    const deleteTask = (index: number) => {
         const temp = [...list];
         temp.splice(index, 1);
         setList(temp);
         localStorage.setItem('todolisted', JSON.stringify(temp));
     }
 
-    const checkedTask = (index) => {
+    const checkedTask = (index: number) => {
         const temp = [...list];
         if (temp[index].isCheck) {
             temp[index].isCheck = false;
@@ -113,7 +117,7 @@ export const Main = () => {
                             Add to do
                         </Heading>
                         <Input ref={inputted} placeholder="Please input your new task here ..." borderColor={"#EDF2F7"} />
-                        <Button onClick={() => addTask(inputted)} backgroundColor={"aqua"} color={"black"} mt={"5"}> ADD TASK</Button>
+                        <Button onClick={() => addTask()} backgroundColor={"aqua"} color={"black"} mt={"5"}> ADD TASK</Button>
                     </Box>
                 </Box>
             </Box>
